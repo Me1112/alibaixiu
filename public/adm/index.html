@@ -93,19 +93,6 @@
   <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
   <script>NProgress.done()</script>
   <!-- <script src="../assets/js/common.js"></script> -->
-  <script>
-    $('#logout').on('click',function(){
-      var  isConfirm  = confirm('您确定退出登录么？');
-      if(isConfirm) {
-        $.ajax({
-          type:'post',
-          url:'/logout',
-          success:function(){
-            location.href='/admin/login.html'
-          }
-        })
-      }
-    })
-  </script>
+
 </body>
 </html>

@@ -18,7 +18,7 @@
       <button class="btn btn-default navbar-btn fa fa-bars"></button>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="javascript:;"><i class="fa fa-user"></i>个人中心</a></li>
-        <li><a href="javascript:;"><i class="fa fa-sign-out"></i>退出</a></li>
+        <li><a href="javascript:;" id="loginout"><i class="fa fa-sign-out"></i>退出</a></li>
       </ul>
     </nav>
     <div class="container-fluid">
@@ -30,7 +30,7 @@
         <!-- <strong>错误！</strong>发生{{message}}错误 -->
       </div>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4" id="modifyBox">
           <form id="userForm">
             <h2>添加新用户</h2>
             <div class="form-group">
@@ -144,6 +144,7 @@
   <script src="../assets/vendors/jquery/jquery.js"></script>
   <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
   <script src='../assets/vendors/art-template/template-web.js'></script>
+  <!-- 添加用户 -->
   <script type="text/html" id="userTpl">
     {{each data}}
     <tr>
@@ -156,7 +157,7 @@
           {{/if}}
         </td>
         <td>{{$value.email}}</td>
-        <td>{{$value.nickName}}r</td>
+        <td>{{$value.nickName}}</td>
         <td>{{$value.status==0?'未激活':'激活'}}</td>
         <td>{{$value.role=="admin"?'超级管理员':'普通用户'}}</td>
         <td class="text-center">
@@ -165,6 +166,54 @@
         </td>
       </tr>
     {{/each}}
+  </script>
+  <!-- 修改用户 -->
+  <script type="text/html" id="modifyTpl">
+    <form id="modifyForm" data-id="{{_id}}">
+      <h2>修改用户信息</h2>
+      <div class="form-group">
+        <label>头像</label>
+        <div class="form-group">
+          <label class="form-image">
+            <input id="avatar" type="file" name="avatar">
+            {{if avatar}}
+            <img src="{{avatar}}" id="preview" >
+            {{else}}
+            <img src="../assets/img/default.png" id="preview">
+            {{/if}}
+            <i class="mask fa fa-upload"></i>
+          </label>
+          <input type="hidden" name="avatar" id="hiddenAvatar" value="{{avatar}}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <input class="form-control" type="email" placeholder="请输入邮箱" name="email" value="{{email}}">
+      </div>
+      <div class="form-group">
+        <label>昵称</label>
+        <input class="form-control" type="text" placeholder="请输入昵称" name="nickName" value="{{nickName}}">
+      </div>
+      <div class="form-group">
+        <div class="radio-inline">
+          <label><input type="radio" name="status" value="0" {{status == 0 ? 'checked' : ''}}>未激活</label>
+        </div>
+        <div class="radio-inline">
+          <label><input type="radio" name="status" value="1" {{status == 1 ? 'checked' : ''}}>激活</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="radio-inline">
+          <label><input type="radio" name="role" value="admin" {{role == 'admin' ? 'checked' : ''}}>超级管理员</label>
+        </div>
+        <div class="radio-inline">
+          <label><input type="radio" name="role" value="normal" {{role == 'normal' ? 'checked': ''}}>普通用户</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary" type="submit">修改</button>
+      </div>
+    </form>
   </script>
   <script>NProgress.done()</script>
   <script>
@@ -190,31 +239,49 @@
       return false;
     });
     //头像上传，为其添加隐藏域，将上传过后的图片地址存储于隐藏域中，提交给后台
-    $('#avatar').on('change',function(){
-      // console.log(this.files);
-      // console.log(this.files[0]);
-      var formData=new FormData();
+    $('#modifyBox').on('change','#avatar',function(){
+      var formData = new FormData();
       formData.append('avatar',this.files[0]);
-      // console.log(formData);
-    $.ajax({
-      type:'post',
-      url:'/upload',
-      data:formData,
-      //告诉$.ajax方法不要解析请求参数
-      processData:false,
-      //告诉$.ajax方法不要设置请求参数的类型
-      contentType:false,
-      success:function(response) {
-        console.log(response);
-        //实现头像预览功能
-        $('#preview').attr('src', response[0].avatar);
-        //将文件的信息存储于隐藏域中,便于传递到后台数据中
-        $('#hiddenAvatar').val(response[0].avatar)
-        console.log(response[0].avatar);
+      $.ajax({
+        type:'post',
+        url:'/upload',
+        data:formData,
+        //告诉$.ajax方法不要解析请求参数
+        processData:false,
+        //告诉$.ajax方法不要试着请求参数的类型
+        contentType:false,
+        success:function(response) {
+          $('#preview').attr('src',response[0].avatar);
+          $('#hiddenAvatar').val(response[0].avatar)
+        }
+      })
+    }
+    )
+    // $('#avatar').on('change',function(){
+    //   // console.log(this.files);
+    //   // console.log(this.files[0]);
+    //   var formData=new FormData();
+    //   formData.append('avatar',this.files[0]);
+    //   // console.log(formData);
+    // $.ajax({
+    //   type:'post',
+    //   url:'/upload',
+    //   data:formData,
+    //   //告诉$.ajax方法不要解析请求参数
+    //   processData:false,
+    //   //告诉$.ajax方法不要设置请求参数的类型
+    //   contentType:false,
+    //   success:function(response) {
+    //     console.log(response);
+    //     //实现头像预览功能
+    //     $('#preview').attr('src', response[0].avatar);
+    //     //将文件的信息存储于隐藏域中,便于传递到后台数据中
+    //     $('#hiddenAvatar').val(response[0].avatar)
+    //     console.log(response[0].avatar);
         
-           }
-       })
-       })
+    //        }
+    //    })
+    //    })
            //向服务器端发送请求，索要用户列表数据
       $.ajax({
         type:'get',
@@ -228,9 +295,54 @@
       })
     // 通过事件委托的方式为编辑按钮添加点击事件  
     $('#userBox').on('click','.edit',function(){
-     
+     var id = $(this).attr('data-id');
+       console.log(id);
+       $.ajax({
+         type:'get',
+         url : '/users/' + id,
+         success:function(response){
+           console.log(response);
+           var html = template('modifyTpl',response)
+           $('#modifyBox').html(html)
+         }
+       })
       
     })
+    // 为修改表单添加表单提交事件
+    $('#modifyBox').on('submit','#modifyForm',function(){
+      var formData = $(this).serialize();
+      var id = $(this).attr('data-id');
+      $.ajax({
+        type:'put',
+        url:'/users/'+id,
+        data:formData,
+        success:function(response) {
+          // console.log(response);
+          location.reload()
+        }
+      });
+      //阻止表单默认提交，一定要写，submit的默认提交方式是get
+      return false;
+    })
+
+    //退出功能
+    $('#loginout').on('click',function(){
+      var isConfirm = confirm('您确定退出登录么')
+     if(isConfirm) {
+       $.ajax({
+         type:'post',
+         url:'/logout',
+         success:function(){
+           location.href="login.html";
+         },
+         error:function() {
+           alert('退出失败')
+         }
+       })
+     }
+    })
+    //删除用户
+   
   </script>
    
 

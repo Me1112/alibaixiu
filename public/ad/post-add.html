@@ -1,0 +1,300 @@
+<!-- 对用户的登录状态进行判断，设置登录拦截 ，发送同步请求-->
+<script src="/login/status"></script>
+<script>
+  // 判断用户状态
+  console.log(isLogin);
+  if (!isLogin) location.href = 'login.html';
+</script>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Add new post &laquo; Admin</title>
+  <link rel="stylesheet" href="../assets/vendors/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="../assets/vendors/font-awesome/css/font-awesome.css">
+  <link rel="stylesheet" href="../assets/vendors/nprogress/nprogress.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <script src="../assets/vendors/nprogress/nprogress.js"></script>
+</head>
+<body>
+  <script>NProgress.start()</script>
+
+  <div class="main">
+    <nav class="navbar">
+      <button class="btn btn-default navbar-btn fa fa-bars"></button>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="profile.html"><i class="fa fa-user"></i>个人中心</a></li>
+        <li><a href="login.html"><i class="fa fa-sign-out"></i>退出</a></li>
+      </ul>
+    </nav>
+    <div class="container-fluid" id="modifyArticle">
+      <div class="page-title">
+        <h1>写文章</h1>
+      </div>
+      <!-- 有错误信息时展示 -->
+      <!-- <div class="alert alert-danger">
+        <strong>错误！</strong>发生XXX错误
+      </div> -->
+      <form class="row" id="article">
+        <div class="col-md-9">
+          <div class="form-group">
+            <label for="title">标题</label>
+            <input id="title" class="form-control input-lg" name="title" type="text" placeholder="文章标题" name="title">
+          </div>
+          <div class="form-group">
+            <label for="content">标题</label>
+            <textarea id="content" class="form-control input-lg" name="content" cols="30" rows="10" placeholder="内容"></textarea>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="feature">特色图像</label>
+            <!-- show when image chose -->
+            <img class="help-block thumbnail" style="display: none" id="showImg">
+          <div class="form-group">
+            <input id="feature" class="form-control" name="feature" type="file" name="thumbnail">
+            <input type="hidden" name="thumbnail" id="thumbnail" >
+          </div>
+          <div class="form-group">
+            <label for="category">所属分类</label>
+            <select id="category" class="form-control" name="category">
+             
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="created">发布时间</label>
+            <input id="created" class="form-control"name="createAt" type="datetime-local">
+          </div>
+          <div class="form-group">
+            <label for="status">状态</label>
+            <select id="status" class="form-control" name="state">
+              <option value="0">草稿</option>
+              <option value="1">已发布</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary" type="submit">保存</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="aside">
+    <div class="profile">
+      <img class="avatar" src="../uploads/avatar.jpg">
+      <h3 class="name">Coder</h3>
+    </div>
+    <ul class="nav">
+      <li>
+        <a href="index.html"><i class="fa fa-dashboard"></i>仪表盘</a>
+      </li>
+      <li class="active">
+        <a href="#menu-posts" data-toggle="collapse">
+          <i class="fa fa-thumb-tack"></i>文章<i class="fa fa-angle-right"></i>
+        </a>
+        <ul id="menu-posts" class="collapse in">
+          <li><a href="posts.html">所有文章</a></li>
+          <li class="active"><a href="post-add.html">写文章</a></li>
+          <li><a href="categories.html">分类目录</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="comments.html"><i class="fa fa-comments"></i>评论</a>
+      </li>
+      <li>
+        <a href="users.html"><i class="fa fa-users"></i>用户</a>
+      </li>
+      <li>
+        <a href="#menu-settings" class="collapsed" data-toggle="collapse">
+          <i class="fa fa-cogs"></i>设置<i class="fa fa-angle-right"></i>
+        </a>
+        <ul id="menu-settings" class="collapse">
+          <li><a href="slides.html">图片轮播</a></li>
+          <li><a href="settings.html">网站设置</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <script src="../assets/vendors/jquery/jquery.js"></script>
+  <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
+  <script src="../assets/vendors/art-template/template-web.js"></script>
+  <!-- 文章分类列表 -->
+  <script type="text/html" id="categoryTpl">
+    {{each data}}
+    <option value="{{$value._id}}">{{$value.title}}</option>
+    {{/each}}
+  </script>
+  <!-- 修改文章操作 -->
+  <script type="text/html" id='modifyTpl'>
+    <div class="page-title">
+      <h1>修改文章</h1>
+    </div>
+    <!-- 有错误信息时展示 -->
+    <!-- <div class="alert alert-danger">
+      <strong>错误！</strong>发生XXX错误
+    </div> -->
+    <form class="row" id="modifyArticle" data-id="{{_id}}">
+      <div class="col-md-9">
+        <div class="form-group">
+          <label for="title">标题</label>
+          <input id="title" class="form-control input-lg" name="title" type="text" placeholder="文章标题" name="title" value={{title}}>
+        </div>
+        <div class="form-group">
+          <label for="content">标题</label>
+          <textarea id="content" class="form-control input-lg" name="content" cols="30" rows="10" placeholder="内容">{{content}}</textarea>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="feature" >特色图像</label>
+          <!-- show when image chose -->
+          <img class="help-block thumbnail" style="display: none" id="showImg">
+        <div class="form-group">
+          <input id="feature" class="form-control" name="feature" type="file" name="thumbnail" >
+          <input type="hidden" name="thumbnail" id="thumbnail" value="{{thumbnail}}">
+        </div>
+        <div class="form-group">
+          <label for="category">所属分类</label>
+          <select id="category" class="form-control" name="category">
+              {{each categories}}
+              <option {{category._id == $value._id ? "selected" : ""}} value="{{$value._id}}">{{$value.title}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="created">发布时间</label>
+          <input id="created" class="form-control"name="createAt" type="date" value="{{createAt.split('T')[0]}}">
+        </div>
+        <div class="form-group">
+          <label for="status">状态</label>
+          <select id="status" class="form-control" name="state">
+            <option value="0" {{state==0?'selected':''}}>草稿</option>
+            <option value="1" {{state==1?'selected':''}}>已发布</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  </script>
+  <script>
+    //处理时间格式的函数
+    function formateDate(date){
+      date = new Date(date);
+      return date.getFull.Year()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+    }
+    
+    //获取文章分类列表
+     $.ajax({
+      type:'get',
+      url:'/categories',
+      success:function(response){
+      var html = template('categoryTpl',{data:response})
+      $('#category').html(html)
+    }
+   });
+   //文章封面上传，给文章封面上传控件设置隐藏域，将其图片路径存放于隐藏域的value身上
+   $('#feature').on('change',function(){
+     var formData = new FormData();
+     formData.append('thumbnail',this.files[0]);
+     console.log(this.files[0]);
+     $.ajax({
+       type:'post',
+       url:'/upload',
+       data:formData,
+       processData:false,
+       contentType:false,
+       success:function(response){
+        // console.log(response[0].thumbnail);
+        $('#thumbnail').val(response[0].thumbnail);
+        $('#showImg').attr('src',response[0].thumbnail)
+        $('#showImg').show()
+       }
+     })
+   })
+  //发布文章
+   $('#article').on('submit',function(){
+     var formData = $(this).serialize();
+     $.ajax({
+       type:'post',
+       url:'/posts',
+       data:formData,
+       success:function(response) {
+        location.href = '/ad/posts.html'  
+       }
+     })
+     return false;
+   })
+  //因为修改页面和增加页面是同一个页面，根据当前页面是地址传过来是否传参判断当前是修改还是增加页面
+  //根据地址判断参数的函数
+  function getParams(name) {
+    var params = location.search.substr(1).split('&');
+      for(var i=0;i<params.length;i++) {
+       var tmp = params[i].split('=');
+       if(tmp[0]==name) {
+         return tmp[1]
+       }      
+      } 
+      return -1; 
+  }
+  // console.log(getParams('id'));
+  //获取地址栏id 的参数
+  var id = getParams('id');
+  // 如果id不等于-1，说明当前是修改操作
+  if(id!=-1) {
+    $.ajax({
+      type:'get',
+      url:'/posts/'+id,
+      success:function(response) {
+        // 查找分类列表
+        $.ajax({
+          url:'/categories',
+          type:'get',
+          success:function(categories) {
+            response.categories = categories;
+            console.log(categories);
+            console.log(response);
+            var html = template('modifyTpl',response);
+               console.log(html);
+            $('#modifyArticle').html(html)
+          }
+        })
+      }
+    })
+  }
+  //提交修改好的表单
+  $('#modifyArticle').on('submit','#modifyArticle',function(){
+    // alert(1)
+    var formData = $(this).serialize();
+    var id = $(this).attr('data-id');
+    console.log(id)
+    $.ajax({
+      type:'put',
+      url:'/posts/'+id,
+      data:formData,
+      success:function(response) {
+        location.href="/ad/posts.html";
+        // console.log(response);
+      }
+    })
+    return false;
+  });
+    //获取用户信息展示在当前页面
+    $.ajax({
+      type:'get',
+      url:'/users/'+userId,
+      success:function(response) {
+        console.log(response);
+        $('.profile .avatar').attr('src',response.avatar);
+        $('.profile .name').text(response.nickName)
+      }
+    })
+  </script>
+
+  <script>NProgress.done()</script>
+</body>
+</html>
